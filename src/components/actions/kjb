@@ -1,0 +1,181 @@
+'use client';
+
+import { PhoneOutgoing,Phone, PhoneOff } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import Image from 'next/image';
+
+const VoiceCallComponent = () => {
+  const [open, setOpen] = useState(false);
+  const [isConnected, setIsConnected] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [connectionTime, setConnectionTime] = useState(0);
+
+  // محاكاة عداد وقت المكالمة
+  useEffect(() => {
+    let interval;
+    if (isConnected && open) {
+      interval = setInterval(() => {
+        setConnectionTime(prev => prev + 1);
+      }, 1000);
+    } else {
+      setConnectionTime(0);
+    }
+    return () => clearInterval(interval);
+  }, [isConnected, open]);
+
+  // تنسيق الوقت
+  const formatTime = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const handleConnect = () => {
+    if (!isConnected) {
+      // بدء المكالمة
+      setIsConnected(true);
+      setTimeout(() => setIsListening(true), 1000);
+    } else {
+      // إنهاء المكالمة وإغلاق المودل
+      setIsConnected(false);
+      setIsListening(false);
+      setConnectionTime(0);
+      setOpen(false); // إغلاق المودل
+    }
+  };
+
+  // مكون الموجة الصوتية
+  const AudioWave = () => {
+    const bars = Array.from({ length: 7 }, (_, i) => i);
+    
+    return (
+      <div className="flex items-center justify-center space-x-1.5">
+        {bars.map((bar, index) => (
+          <div
+            key={bar}
+            className="bg-gradient-to-t from-green-300 via-blue-400 to-cyan-300 rounded-full shadow-lg shadow-cyan-300/30"
+            style={{
+              width: '4px',
+              height: '14px',
+              animation: `audioWave 1.8s ease-in-out infinite`,
+              animationDelay: `${index * 0.15}s`,
+            }}
+          />
+        ))}
+        <style jsx>{`
+          @keyframes audioWave {
+            0%, 100% { 
+              height: 14px;
+              opacity: 0.5;
+              transform: scaleY(1);
+            }
+            25% { 
+              height: 28px;
+              opacity: 0.8;
+              transform: scaleY(1.2);
+            }
+            50% { 
+              height: 42px;
+              opacity: 1;
+              transform: scaleY(1.4);
+            }
+            75% { 
+              height: 22px;
+              opacity: 0.9;
+              transform: scaleY(1.1);
+            }
+          }
+        `}</style>
+      </div>
+    );
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button
+          variant="outline"
+          size="icon"
+          className="h-9 w-9 rounded-full text-green-200 dark:text-green-400 border-green-300/30 dark:border-green-500/30 hover:bg-green-100 dark:hover:bg-green-400/20 transition-all duration-200"
+        >
+          <PhoneOutgoing className="h-4 w-4" />
+        </Button>
+      </DialogTrigger>
+      
+      <DialogContent className='bg-gradient-to-tr from-violet-700 via-blue-900/50 to-green-400/50 dark:from-violet-600/20 dark:via-blue-900/20 dark:to-green-400/20 backdrop-blur-xl border border-gray-300/40 dark:border-gray-600/30 rounded-3xl max-w-md mx-auto'>
+        <div className="flex flex-col items-center justify-center p-6 space-y-6">
+          
+          {/* صورة المستخدم أو الأفاتار مع الموجات الصوتية */}
+          <div className="relative flex items-center justify-center">
+            
+            {/* الموجات الصوتية */}
+            {isListening && (
+              <>
+                <div className="absolute w-40 h-40 rounded-full border-2 border-white/20 animate-ping"></div>
+                <div className="absolute w-48 h-48 rounded-full border border-white/10 animate-ping" style={{animationDelay: '0.5s'}}></div>
+                <div className="absolute w-56 h-56 rounded-full border border-white/5 animate-ping" style={{animationDelay: '1s'}}></div>
+              </>
+            )}
+            
+            {/* الأفاتار */}
+            <div className={`relative z-10 w-40 h-40 rounded-full bg-gradient-to-t from-blue-950 via-blue-800 to-purple-500/80 backdrop-blur-sm flex items-center justify-center text-white  font-bold shadow-2xl border-2 border-white/20 ${
+              isListening ? '' : ''
+            }`}>
+  
+              <Image
+                src="/THG.svg"
+                alt="hadeg"
+                width={1000}
+                height={1000}
+                className=' '
+              />
+
+            </div>
+            
+          </div>
+
+          {/* معلومات المكالمة */}
+          <div className="text-center space-y-4">
+           
+            <p className="text-white/90 text-lg font-semibold tracking-wide">
+              {!isConnected ? 'تلفن علي' : 'نصنت لك'}
+            </p>
+            
+            {/* الموجة الصوتية والتوقيت */}
+            {isListening && (
+              <div className="flex flex-col items-center space-y-3">
+                <AudioWave />
+                <div className="px-4 py-1.5 bg-gradient-to-r from-blue-500/20 to-green-400/20 backdrop-blur-sm rounded-full border border-white/10">
+                  <span className="text-white/80 text-sm font-mono tracking-wider">
+                    {formatTime(connectionTime)}
+                  </span>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* أزرار التحكم */}
+          <div className="flex items-center justify-center space-x-4">
+            
+            {/* زر الاتصال الرئيسي */}
+            <Button
+              onClick={handleConnect}
+              className={`h-16 w-16 rounded-full transition-all duration-300 backdrop-blur-sm border-2 ${
+                isConnected
+                  ? 'bg-red-500/90 hover:bg-red-500 border-red-300/50 text-white shadow-lg shadow-red-500/25'
+                  : 'bg-green-500/90 hover:bg-green-500 border-green-300/50 text-white shadow-lg shadow-green-500/25'
+              }`}
+            >
+              {isConnected ? <PhoneOff className="h-6 w-6" /> : <Phone className="h-6 w-6" />}
+            </Button>
+            
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+export default VoiceCallComponent;
