@@ -1,6 +1,6 @@
 import { ImageResponse } from 'next/og';
 
-export const alt = 'My 15 App';
+export const alt = 'Hadeg AI';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
@@ -19,7 +19,7 @@ export default async function Image() {
           justifyContent: 'center',
         }}
       >
-        My 15 App
+        Hadeg AI
       </div>
     ),
     { ...size }

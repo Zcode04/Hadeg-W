@@ -114,7 +114,7 @@ export default function ChatWindow({ messages, isLoading, onSuggestionClick }: C
             ))}
             {isLoading && (
               <div className="flex items-start gap-4 p-6 animate-slide-up">
-                <div className="w-16 h-16 rounded-full flex items-center justify-center shadow-lg flex-shrink-0">
+                <div className="w-16 h-16 rounded-full flex items-center justify-center  flex-shrink-0">
                   <Image 
                     src="/DHG.svg" 
                     alt="Had Logo" 
@@ -126,9 +126,9 @@ export default function ChatWindow({ messages, isLoading, onSuggestionClick }: C
                 </div>
                 <div className="flex flex-col items-start">
                   <div className="flex items-center gap-1 mb-2">
-                    <div className="w-2 h-2 bg-green-400 dark:bg-green-500 rounded-full animate-pulse-dot" />
-                    <div className="w-2 h-2 bg-green-300 dark:bg-green-600 rounded-full animate-pulse-dot" style={{ animationDelay: '0.2s' }} />
-                    <div className="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full animate-pulse-dot" style={{ animationDelay: '0.4s' }} />
+                    <div className="w-2 h-2 bg-violet-600 dark:bg-green-500 rounded-full animate-pulse-dot" />
+                    <div className="w-2 h-2 bg-green-500 dark:bg-violet-600 rounded-full animate-pulse-dot" style={{ animationDelay: '0.2s' }} />
+                    <div className="w-2 h-2 bg-blue-500 dark:bg-blue-600 rounded-full animate-pulse-dot" style={{ animationDelay: '0.4s' }} />
                   </div>
                   <span className="text-green-600 dark:text-green-400 text-sm font-medium">حني شوي</span>
                 </div>

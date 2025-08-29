@@ -29,13 +29,19 @@ export const localApi = axios.create({
   timeout: 30000,
 });
 
-// أنواع الرسالة وطلب الدردشة واستجابة الدردشة
+      
 export interface ChatMessage {
   id: string;
   role: 'user' | 'assistant';
   content: string;
   timestamp: Date;
+  audioBlob?: Blob;           // البيانات الصوتية
+  messageType?: 'text' | 'audio'; // نوع الرسالة
 }
+
+
+
+
 
 export interface ChatRequest {
   message: string;

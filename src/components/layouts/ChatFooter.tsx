@@ -1,4 +1,3 @@
-// ChatFooter.tsx  (النسخة المُحدّثة لدعم المرفقات بالكامل)
 'use client';
 import { useRef, useState } from 'react';
 import { isValidMessage } from '@/app/lib/utils';
@@ -9,26 +8,39 @@ import MediaButtons from './MediaButtons';
 interface ChatFooterProps {
   inputMessage: string;
   setInputMessage: (message: string) => void;
-  onSendMessage: (payload: { text: string; attachments: File[] }) => void;
+  onSendMessage: () => void; // دالة إرسال بسيطة تقرأ من inputMessage
   isLoading: boolean;
   toggleSidebar?: () => void;
   onActionClick?: (action: string) => void;
+  hasAudioRecording?: boolean;
+  handleSendOrTranscribe?: () => void;
+  onRecordingComplete?: (audioBlob: Blob, duration: number) => void;
+  onRecordingDelete?: () => void;
 }
 
-const ChatFooter = ({ 
-  inputMessage, 
-  setInputMessage, 
-  onSendMessage, 
-  isLoading, 
-  toggleSidebar, 
+const ChatFooter = ({
+  inputMessage,
+  setInputMessage,
+  onSendMessage,
+  isLoading,
+  toggleSidebar,
   onActionClick,
+  hasAudioRecording = false,
+  handleSendOrTranscribe,
+  onRecordingComplete,
+  onRecordingDelete,
 }: ChatFooterProps) => {
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const [attachments, setAttachments] = useState<File[]>([]);
 
+  // تعامل بسيط مع الإرسال - يستدعي دالة الإرسال الأصلية
   const handleSend = () => {
-    if (!inputMessage.trim() && attachments.length === 0) return;
-    onSendMessage({ text: inputMessage, attachments });
+    if (!inputMessage.trim() && attachments.length === 0 && !hasAudioRecording) return;
+    
+    // إرسال الرسالة بالنص الحالي
+    onSendMessage();
+    
+    // مسح المرفقات المحلية (سيتم مسح inputMessage في ChatLayout)
     setAttachments([]);
   };
 
@@ -44,11 +56,17 @@ const ChatFooter = ({
     setAttachments(prev => [...prev, file]);
   };
 
+  // حساب صحيح لحالة الإرسال
+  const canSend = isValidMessage(inputMessage) || attachments.length > 0 || hasAudioRecording;
+
   return (
     <footer className="p-4 relative z-10 -mt-9">
       <div className="max-w-4xl mx-auto">
-        <ActionButtons onActionClick={onActionClick} />
-
+        <ActionButtons
+          onActionClick={onActionClick}
+          onRecordingComplete={onRecordingComplete}
+          onRecordingDelete={onRecordingDelete}
+        />
         <InputArea
           ref={inputRef}
           inputMessage={inputMessage}
@@ -58,13 +76,14 @@ const ChatFooter = ({
           attachments={attachments}
           onAttachmentsChange={setAttachments}
         />
-
         <MediaButtons
-          onSendMessage={handleSend}
-          isValidMessage={isValidMessage(inputMessage) || attachments.length > 0}
+          onSendMessage={hasAudioRecording ? handleSendOrTranscribe! : handleSend}
+          isValidMessage={canSend}
           isLoading={isLoading}
           toggleSidebar={toggleSidebar}
           onMediaSelect={handleMediaSelect}
+          hasAudioRecording={hasAudioRecording}
+          handleSendOrTranscribe={handleSendOrTranscribe}
         />
       </div>
     </footer>

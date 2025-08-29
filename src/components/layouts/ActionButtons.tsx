@@ -12,15 +12,19 @@ import VoiceRecorder from '../voice/VoiceRecorder';
 const VideoCallAction = dynamic(() => import('@/components/actions/VideoCallAction'), { ssr: false });
 const PhoneCallAction = dynamic(() => import('@/components/actions/PhoneCallAction'), { ssr: false });
 
-
-
-
-
 interface ActionButtonsProps {
   onActionClick?: (action: string) => void;
+  onRecordingComplete?: (audioBlob: Blob, duration: number) => void;
+  onRecordingDelete?: () => void;
 }
 
-const ActionButtons = ({ onActionClick }: ActionButtonsProps) => {
+// ✅ تصحيح: إضافة جميع المعاملات المطلوبة
+const ActionButtons = ({ 
+  onActionClick, 
+  onRecordingComplete, 
+  onRecordingDelete 
+}: ActionButtonsProps) => {
+  
   const handleActionClick = (action: string) => {
     if (onActionClick) {
       onActionClick(action);
@@ -35,13 +39,15 @@ const ActionButtons = ({ onActionClick }: ActionButtonsProps) => {
 
   return (
     <div className="mb-3 flex flex-wrap gap-2 justify-center">
-
-          <VoiceRecorder />
+      {/* ✅ الآن سيتم تمرير القيم الصحيحة */}
+      <VoiceRecorder 
+        onRecordingComplete={onRecordingComplete}
+        onRecordingDelete={onRecordingDelete}
+      />
 
       <TooltipProvider>
         {/* زر الاتصال */}
         <div className="flex gap-2"> 
-         
           <Popover>
             <PopoverTrigger asChild>
               <Button
@@ -49,17 +55,14 @@ const ActionButtons = ({ onActionClick }: ActionButtonsProps) => {
                 size="icon"
                 className="h-9 w-9 rounded-full text-green-50 border-green-400/20 bg-gradient-to-tr from-violet-600 via-blue-900/90 to-green-400 dark:from-violet-600/20  dark:via-blue-900/20  dark:to-green-400/20 dark:text-green-400 dark:border-green-400/10 hover:bg-blue-100 dark:hover:bg-blue-900/30"
               >
-                <PhoneCall className="h-4 w-4  " />
+                <PhoneCall className="h-4 w-4" />
               </Button>
-              
             </PopoverTrigger>
             <PopoverContent className="flex flex-wrap gap-2 justify-center w-40 p-4 bg-gradient-to-tr from-violet-600 via-blue-900/90 to-green-400 dark:from-violet-600/20  dark:via-blue-900/20  dark:to-green-400/20 dark:text-green-400 dark:border-green-400/10 rounded-3xl shadow-xl">
               <VideoCallAction />
               <PhoneCallAction />
             </PopoverContent>
           </Popover>
-
-         
         </div>
 
         {/* باقي الأدوات */}
