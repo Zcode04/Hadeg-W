@@ -2,8 +2,8 @@
 
 'use client';
 
-import { useState, useRef, useEffect, useMemo } from 'react';
-import { Mic,CircleFadingArrowUp, Play, Pause, Trash2 } from 'lucide-react';
+import { useState, useRef, useEffect, useMemo, useImperativeHandle, forwardRef } from 'react';
+import { Mic,CircleFadingArrowUp, CirclePlay,  Trash2 ,CircleFadingPlus , CirclePause} from 'lucide-react';
 
 import { cn } from '@/app/lib/utils';
 
@@ -13,6 +13,11 @@ interface VoiceRecorderProps {
   onRecordingStop?: () => void;
   onRecordingDelete?: () => void;
   className?: string;
+}
+
+// إضافة واجهة المرجع
+export interface VoiceRecorderRef {
+  resetRecording: () => void;
 }
 
 // مكون WaveVisualizer مع تأثيرات البرق المتقدمة
@@ -129,13 +134,13 @@ const WaveVisualizer = ({
   );
 };
 
-const VoiceRecorder = ({
+const VoiceRecorder = forwardRef<VoiceRecorderRef, VoiceRecorderProps>(({
   onRecordingComplete,
   onRecordingStart,
   onRecordingStop,
   onRecordingDelete,
   className
-}: VoiceRecorderProps) => {
+}, ref) => {
   // الحد الأقصى للتسجيل (5 ثوان)
   const MAX_RECORDING_TIME = 5;
 
@@ -178,7 +183,7 @@ const [audioLevel, setAudioLevel] = useState(0);
   // الرسوم المتحركة عند التسجيل وعند التشغيل - حركة البرق
   useEffect(() => {
     let t: NodeJS.Timeout;
-    if ((isRecording || isPlaying) && mounted) {
+    if (((isRecording && !isPaused) || isPlaying) && mounted) {
       t = setInterval(() => {
         const time = Date.now() * 0.008;
         setWavePoints((prev) =>
@@ -193,7 +198,7 @@ const [audioLevel, setAudioLevel] = useState(0);
       }, 80);
     }
     return () => clearInterval(t);
-  }, [isRecording, isPlaying, mounted]);
+  }, [isRecording, isPaused, isPlaying, mounted]);
 
   // المراجع
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -204,6 +209,40 @@ const [audioLevel, setAudioLevel] = useState(0);
   const animationFrameRef = useRef<number | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const chunksRef = useRef<Blob[]>([]);
+
+  // دالة إعادة تعيين الحالة بالكامل
+  const resetRecording = () => {
+    // إيقاف التسجيل إذا كان نشطًا
+    if (isRecording) {
+      stopRecording();
+    }
+    
+    // إيقاف التشغيل إذا كان نشطًا
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
+    
+    // مسح جميع الحالات
+    setAudioBlob(null);
+    setAudioUrl('');
+    setDuration(0);
+    setPlaybackTime(0);
+    setIsPlaying(false);
+    setIsRecording(false);
+    setIsPaused(false);
+    setAudioLevel(0);
+    
+    // مسح URL القديم لتجنب تسريب الذاكرة
+    if (audioUrl) {
+      URL.revokeObjectURL(audioUrl);
+    }
+  };
+
+  // كشف المرجع للمكون الأب
+  useImperativeHandle(ref, () => ({
+    resetRecording
+  }));
 
   // تنظيف الموارد
   const cleanup = () => {
@@ -440,7 +479,7 @@ const [audioLevel, setAudioLevel] = useState(0);
               className="text-green-50 dark:text-green-500 hover:scale-110 transition-transform"
               title={isPlaying ? "إيقاف التشغيل" : "تشغيل التسجيل"}
             >
-              {isPlaying ? <Pause size={18} /> : <Play size={18} />}
+              {isPlaying ? <CirclePause size={20} /> : <CirclePlay size={20} />}
             </button>
             <div className="flex items-center justify-center h-[24px] min-w-[80px]">
               <WaveVisualizer
@@ -472,7 +511,7 @@ const [audioLevel, setAudioLevel] = useState(0);
               <div className="flex items-center justify-center min-w-[100px] h-[26px]">
                 <WaveVisualizer
                   width={100}
-                  isAnimated={true}
+                  isAnimated={!isPaused}
                   segments={25}
                   wavePoints={wavePoints}
                 />
@@ -482,13 +521,13 @@ const [audioLevel, setAudioLevel] = useState(0);
               </span>
               <button
                 onClick={isPaused ? resumeRecording : pauseRecording}
-                className="text-green-50 dark:text-green-500 hover:scale-110 transition-transform"
+                className="text-green-50 dark:text-green-300 hover:scale-110 transition-transform"
               >
-                {isPaused ? <Play size={18} /> : <Pause size={18} />}
+                {isPaused ? <CircleFadingPlus size={18} /> : <CirclePause size={18} />}
               </button>
               <button
                 onClick={stopRecording}
-                className="text-green-50 dark:text-green-500 hover:scale-110 transition-transform"
+                className="text-green-50 dark:text-green-400 hover:scale-110 transition-transform"
               >
                 <CircleFadingArrowUp size={18} />
               </button>
@@ -508,6 +547,8 @@ const [audioLevel, setAudioLevel] = useState(0);
       )}
     </div>
   );
-};
+});
+
+VoiceRecorder.displayName = 'VoiceRecorder';
 
 export default VoiceRecorder;

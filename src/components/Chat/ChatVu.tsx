@@ -2,7 +2,7 @@
 
 'use client';
 import { cn } from '@/app/lib/utils';
-import { ThumbsUp, ThumbsDown, Copy, Volume2, Play, Pause, Check, CheckCheck } from 'lucide-react';
+import { ThumbsUp, ThumbsDown, Copy, Volume2, CirclePlay, CirclePause, Check, CheckCheck } from 'lucide-react';
 import Image from 'next/image';
 import { useMemo, useCallback, useId,  } from 'react';
 import TranscriptView from '@/components/Chat/TranscriptView'; // استيراد المكون الجديد
@@ -228,7 +228,7 @@ const AudioView = ({
             className="text-gray-50 dark:text-green-50 hover:scale-110 transition-transform"
             title={isPlaying ? "إيقاف التسجيل" : "تشغيل التسجيل"}
           >
-            {isPlaying ? <Pause size={18} /> : <Play size={18} />}
+            {isPlaying ? <CirclePause size={20} /> : <CirclePlay size={20} />}
           </button>
           <div className="flex items-center justify-center h-[28px] min-w-[100px]">
             <WaveVisualizer

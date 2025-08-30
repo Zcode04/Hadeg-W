@@ -3,7 +3,7 @@
 
 'use client';
 
-import { Play, Pause, Smile } from 'lucide-react';
+import { CirclePlay, CirclePause, Smile } from 'lucide-react';
 import Image from 'next/image';
 import React, { useCallback, useId, useMemo, useState, } from 'react';
 
@@ -179,7 +179,7 @@ const TranscriptView = ({
                 className="text-slate-50 dark:text-gray-50 hover:scale-110 mt-2 transition-transform"
                 title={isSpeaking ? "إيقاف القراءة" : "تشغيل القراءة"}
               >
-                {isSpeaking ? <Pause size={16} /> : <Play size={16} />}
+                {isSpeaking ? <CirclePause size={20} /> : <CirclePlay size={20} />}
               </button>
               
               <div className="flex items-center justify-center h-[24px] min-w-[80px]">

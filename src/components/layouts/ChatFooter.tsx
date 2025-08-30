@@ -16,6 +16,7 @@ interface ChatFooterProps {
   handleSendOrTranscribe?: () => void;
   onRecordingComplete?: (audioBlob: Blob, duration: number) => void;
   onRecordingDelete?: () => void;
+  resetVoiceRecorder?: boolean; // ✅ إضافة إشارة إعادة التعيين
 }
 
 const ChatFooter = ({
@@ -29,6 +30,7 @@ const ChatFooter = ({
   handleSendOrTranscribe,
   onRecordingComplete,
   onRecordingDelete,
+  resetVoiceRecorder = false, // ✅ القيمة الافتراضية
 }: ChatFooterProps) => {
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const [attachments, setAttachments] = useState<File[]>([]);
@@ -66,6 +68,7 @@ const ChatFooter = ({
           onActionClick={onActionClick}
           onRecordingComplete={onRecordingComplete}
           onRecordingDelete={onRecordingDelete}
+          resetVoiceRecorder={resetVoiceRecorder} // ✅ تمرير الإشارة
         />
         <InputArea
           ref={inputRef}

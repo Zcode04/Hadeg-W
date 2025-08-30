@@ -1,12 +1,15 @@
+//ActionButtons.tsx
+
 'use client';
 
+import { useRef, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { Button } from "@/components/ui/button";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Music, Code2, Globe, MoreHorizontal, PhoneCall } from 'lucide-react';
-import VoiceRecorder from '../voice/VoiceRecorder';
+import VoiceRecorder, { VoiceRecorderRef } from '../voice/VoiceRecorder';
 
 // ✅ استدعاء المكونات بشكل ديناميكي
 const VideoCallAction = dynamic(() => import('@/components/actions/VideoCallAction'), { ssr: false });
@@ -16,20 +19,31 @@ interface ActionButtonsProps {
   onActionClick?: (action: string) => void;
   onRecordingComplete?: (audioBlob: Blob, duration: number) => void;
   onRecordingDelete?: () => void;
+  resetVoiceRecorder?: boolean; // إشارة لإعادة تعيين التسجيل
 }
 
-// ✅ تصحيح: إضافة جميع المعاملات المطلوبة
+// ✅ تصحيح: إضافة جميع المعاملات المطلوبة + المرجع
 const ActionButtons = ({ 
   onActionClick, 
   onRecordingComplete, 
-  onRecordingDelete 
+  onRecordingDelete,
+  resetVoiceRecorder = false
 }: ActionButtonsProps) => {
   
+  const voiceRecorderRef = useRef<VoiceRecorderRef>(null);
+
   const handleActionClick = (action: string) => {
     if (onActionClick) {
       onActionClick(action);
     }
   };
+
+  // إعادة تعيين التسجيل عند تغيير الإشارة
+  useEffect(() => {
+    if (resetVoiceRecorder && voiceRecorderRef.current) {
+      voiceRecorderRef.current.resetRecording();
+    }
+  }, [resetVoiceRecorder]);
 
   const mobileActions = [
     { icon: Music, label: "موسيقى", action: "music" },
@@ -39,8 +53,9 @@ const ActionButtons = ({
 
   return (
     <div className="mb-3 flex flex-wrap gap-2 justify-center">
-      {/* ✅ الآن سيتم تمرير القيم الصحيحة */}
+      {/* ✅ الآن سيتم تمرير القيم الصحيحة مع المرجع */}
       <VoiceRecorder 
+        ref={voiceRecorderRef}
         onRecordingComplete={onRecordingComplete}
         onRecordingDelete={onRecordingDelete}
       />
