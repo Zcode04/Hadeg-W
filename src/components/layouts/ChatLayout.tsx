@@ -1,5 +1,3 @@
-//ChatLayout.tsx
-
 'use client';
 import { useState } from 'react';
 import { ChatMessage as ChatMessageType, localApi } from '@/app/lib/api-config';
@@ -20,7 +18,6 @@ export default function ChatLayout() {
   // المتغيرات الجديدة للتسجيل الصوتي
   const [audioRecording, setAudioRecording] = useState<Blob | null>(null);
   const [hasAudioRecording, setHasAudioRecording] = useState(false);
-  const [resetVoiceRecorder, setResetVoiceRecorder] = useState(false); // إشارة إعادة التعيين
 
   // ✅ دالة إرسال الرسائل النصية المحسنة
   const sendMessage = async (messageText?: string) => {
@@ -84,7 +81,7 @@ export default function ChatLayout() {
     setHasAudioRecording(false);
   };
 
-  // دالة إرسال أو تحويل التسجيل الصوتي مع إعادة تعيين الحالة
+  // دالة إرسال أو تحويل التسجيل الصوتي
   const handleSendOrTranscribe = async () => {
     if (!audioRecording || isLoading) return;
 
@@ -98,15 +95,8 @@ export default function ChatLayout() {
     };
 
     setMessages(prev => [...prev, audioMessage]);
-    
-    // ✅ إعادة تعيين حالة التسجيل الصوتي فورًا بعد الإرسال
     setAudioRecording(null);
     setHasAudioRecording(false);
-    
-    // ✅ إرسال إشارة إعادة تعيين للمكونات الفرعية
-    setResetVoiceRecorder(true);
-    setTimeout(() => setResetVoiceRecorder(false), 100); // إعادة تعيين الإشارة
-    
     setIsLoading(true);
     setError(null);
 
@@ -208,7 +198,6 @@ export default function ChatLayout() {
             handleSendOrTranscribe={handleSendOrTranscribe}
             onRecordingComplete={handleRecordingComplete}
             onRecordingDelete={handleRecordingDelete}
-            resetVoiceRecorder={resetVoiceRecorder} // ✅ تمرير الإشارة
           />
         </main>
       </div>
